@@ -1,0 +1,36 @@
+version: '3.8'
+services:
+  backend:
+    build:
+      context: ./backend/monolith_be
+      dockerfile: Dockerfile
+    volumes:
+      - ./backend/monolith_be:/var/www/html
+    ports:
+      - 8000:8000
+    depends_on:
+      - database
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ./frontend:/app
+    ports:
+      - 4000:4000
+    depends_on:
+      - backend
+
+  database:
+    image: mysql:8.0
+    environment:
+      - MYSQL_DATABASE=user
+      - MYSQL_USER=niko
+      - MYSQL_PASSWORD=niko
+      - MYSQL_ROOT_PASSWORD=niko
+    volumes:
+      - db-data:/var/lib/mysql
+
+volumes:
+  db-data:
