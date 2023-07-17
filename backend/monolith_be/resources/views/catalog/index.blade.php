@@ -11,7 +11,7 @@
                             <h5 class="card-title">{{ $item['nama'] }}</h5>
                             <p class="card-text">Harga: {{ $item['harga'] }}</p>
                             <p class="card-text">Stok: {{ $item['stok'] }}</p>
-                            <a href="{{ route('catalogue.show', ['id' => $item['id']]) }}" class="btn btn-primary">Detail</a>
+                            <a href="{{ route('catalog.show', ['id' => $item['id']]) }}" class="btn btn-primary">Detail</a>
                         </div>
                     </div>
                 </div>
