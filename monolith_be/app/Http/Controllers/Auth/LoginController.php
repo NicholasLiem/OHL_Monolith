@@ -24,6 +24,7 @@ class LoginController extends Controller
 
         if (Auth::attempt($credentials))
         {
+            $request->session()->put('username', Auth::user()->username);
             return redirect()->intended('dashboard');
         } else {
             return back()->withErrors(['email' => 'Invalid credentials.']);

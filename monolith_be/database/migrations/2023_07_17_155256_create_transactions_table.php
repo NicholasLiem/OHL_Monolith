@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
             $table->string('username');
+            $table->string('product_name');
             $table->string('product_code');
             $table->timestamp('purchase_date')->useCurrent()->nullable();
             $table->integer('quantity');

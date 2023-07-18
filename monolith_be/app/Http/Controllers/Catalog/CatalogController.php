@@ -7,30 +7,38 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Pagination\LengthAwarePaginator;
-
+use Illuminate\Http\Request;
 
 class CatalogController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $response = Http::get('localhost:3000/barang');
-        
+        $query = $request->input('q');
+
+        $response = Http::get('localhost:3000/barang', [
+            'q' => $query,
+        ]);
+
         if ($response->successful()) {
             $data = $response->json();
             $items = collect($data['data']);
 
+            if ($items->isEmpty()) {
+                return back()->withError('Tidak ada barang yang ditemukan.');
+            }
+
             $perPage = 9; // Number of items per page
             $currentPage = Paginator::resolveCurrentPage('page');
 
-            $lastPage = ceil($items->count() / $perPage);
-            if ($currentPage > $lastPage) {
-                return redirect()->route('catalog.index', ['page' => $lastPage]);
-            }
-
-            $currentItems = $items->slice(($currentPage - 1) * $perPage, $perPage);
-            $catalog = new LengthAwarePaginator($currentItems, $items->count(), $perPage, $currentPage, [
-                'path' => Paginator::resolveCurrentPath(),
-            ]);
+            $catalog = new LengthAwarePaginator(
+                $items->forPage($currentPage, $perPage),
+                $items->count(),
+                $perPage,
+                $currentPage,
+                [
+                    'path' => Paginator::resolveCurrentPath(),
+                ]
+            );
 
             return view('catalog.index', compact('catalog'));
         } else {

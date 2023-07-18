@@ -1,6 +1,7 @@
 @extends('layout')
 
 @section('content')
+<div class="container d-flex justify-content-center align-items-center" style="height: 100vh;">
     <div class="text-center">
         <h1 class="display-4 mt-5">Welcome to Tokekpedia</h1>
         <p class="lead">The best place for all your toking needs!</p>
@@ -9,4 +10,5 @@
             <a href="{{ route('login') }}" class="btn btn-secondary btn-lg">Login</a>
         </div>
     </div>
+</div>
 @endsection

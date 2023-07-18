@@ -29,62 +29,78 @@ class TransactionController extends Controller
     {
         $quantity = $request->input('quantity');
 
-        $barangResponse = Http::get('http://localhost:3000/barang/'.$id);
+        try {
+            $barangResponse = Http::get('http://localhost:3000/barang/'.$id);
 
-        if ($barangResponse->successful()) {
-            $barangData = $barangResponse->json()['data'];
+            if ($barangResponse->successful()) {
+                $barangData = $barangResponse->json()['data'];
 
-            $nama = $barangData['nama'];
-            $harga = $barangData['harga'];
-            $stok = $barangData['stok'];
-            $kode = $barangData['kode'];
+                $nama = $barangData['nama'];
+                $harga = $barangData['harga'];
+                $stok = $barangData['stok'];
+                $perusahaan_id = $barangData['perusahaan_id'];
+                $kode = $barangData['kode'];
 
-            $newStok = $stok - $quantity;
-
-            $loginResponse = Http::post('http://localhost:3000/login', [
-                'username' => 'admin',
-                'password' => 'admin'
-            ]);
-
-            if ($loginResponse->successful()) {
-                $token = $loginResponse->json()['data']['token'];
-
-                $response = Http::withHeaders([
-                    'Authorization' => 'Bearer ' . $token,
-                ])->put('http://localhost:3000/barang/'.$id, [
-                    'nama' => $nama,
-                    'harga' => $harga,
-                    'stok' => $newStok,
-                    'kode' => $kode,
-                ]);
-                
-                if ($response->successful()) {
-                    $this->createTransaction(
-                        $request->username,
-                        $kode,
-                        date('Y-m-d H:i:s'),
-                        $quantity,
-                        $harga * $quantity
-                    );
-                    return redirect()->route('dashboard')->withSuccess('Berhasil melakukan pembelian');
-                } else {
-                    return back()->withError('Gagal melakukan pembelian');
+                if ($quantity > $stok) {
+                    return back()->withError('Gagal melakukan pembelian. Stok tidak mencukupi.');
                 }
-            } else {
-                return back()->withError('Gagal melakukan login');
+
+                $newStok = $stok - $quantity;
+
+                $loginResponse = Http::post('http://localhost:3000/login', [
+                    'username' => 'admin',
+                    'password' => 'admin'
+                ]);
+
+                if ($loginResponse->successful()) {
+                    $token = $loginResponse->json()['data']['token'];
+
+                    $response = Http::withHeaders([
+                        'Authorization' => 'Bearer ' . $token,
+                    ])->put('http://localhost:3000/barang/'.$id, [
+                        'nama' => $nama,
+                        'harga' => $harga,
+                        'stok' => $newStok,
+                        'perusahaan_id' => $perusahaan_id,
+                        'kode' => $kode,
+                    ]);
+
+                    if ($response->successful()) {
+                        $this->createTransaction(
+                            $request->username,
+                            $nama,
+                            $kode,
+                            date('Y-m-d H:i:s'),
+                            $quantity,
+                            $harga * $quantity
+                        );
+                        return redirect()->route('dashboard')->withSuccess('Berhasil melakukan pembelian');
+                    }
+                }
             }
+
+            return back()->withError('Gagal melakukan pembelian');
+        } catch (\Exception $e) {
+            return back()->withError('Terjadi kesalahan saat melakukan pembelian: '.$e->getMessage());
         }
     }
 
 
-    public function createTransaction($username, $product_code, $purchase_date, $quantity, $total_price)
+    public function createTransaction($username, $product_name, $product_code, $purchase_date, $quantity, $total_price)
     {
         $transaction = Transaction::create([
             'username' => $username,
+            'product_name' => $product_name,
             'product_code' => $product_code,
             'purchase_date' => $purchase_date,
             'quantity' => $quantity,
             'total_price' => $total_price
         ]);
+    }
+
+    public function history()
+    {
+        $transactions = Transaction::where('username', Session::get('username'))->paginate(10);
+        return view('order.history', compact('transactions'));
     }
 }

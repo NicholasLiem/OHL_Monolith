@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Catalog\CatalogController;
 use App\Http\Controllers\Transaction\TransactionController;
+use App\Http\Controllers\Route\ErrorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,4 +40,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/catalog', [CatalogController::class, 'index'])->name('catalog.index');
     Route::get('/order/{id}', [TransactionController::class, 'show'])->name('order.show');
     Route::post('/order/{id}/purchase', [TransactionController::class, 'purchase'])->name('order.purchase');
+    Route::get('/history', [TransactionController::class, 'history'])->name('order.history');
 });
+
+Route::fallback([ErrorController::class, 'show404']);
