@@ -28,43 +28,63 @@ class TransactionController extends Controller
     public function purchase(Request $request, $id)
     {
         $quantity = $request->input('quantity');
-        
-        $loginResponse = Http::post('localhost:3000/login', [
-            'username' => 'admin',
-            'password' => 'admin'
-        ]);
 
-        // dd($loginResponse->json());
+        $barangResponse = Http::get('http://localhost:3000/barang/'.$id);
 
-        if ($loginResponse->successful()) {
-            $token = $loginResponse->json()['data']['token'];
-            
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $token
-            ])->put('localhost:3000/barang/'.$id, [
-                'stok' => $request->input('stok') - $quantity
+        if ($barangResponse->successful()) {
+            $barangData = $barangResponse->json()['data'];
+
+            $nama = $barangData['nama'];
+            $harga = $barangData['harga'];
+            $stok = $barangData['stok'];
+            $kode = $barangData['kode'];
+
+            $newStok = $stok - $quantity;
+
+            $loginResponse = Http::post('http://localhost:3000/login', [
+                'username' => 'admin',
+                'password' => 'admin'
             ]);
 
-            // dd($response->json());
-            
-            if ($response->successful()) {
-                $this->createTransaction($request);
-                return redirect()->route('dashboard')->withSuccess('Berhasil melakukan pembelian');
+            if ($loginResponse->successful()) {
+                $token = $loginResponse->json()['data']['token'];
+
+                $response = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . $token,
+                ])->put('http://localhost:3000/barang/'.$id, [
+                    'nama' => $nama,
+                    'harga' => $harga,
+                    'stok' => $newStok,
+                    'kode' => $kode,
+                ]);
+                
+                if ($response->successful()) {
+                    $this->createTransaction(
+                        $request->username,
+                        $kode,
+                        date('Y-m-d H:i:s'),
+                        $quantity,
+                        $harga * $quantity
+                    );
+                    return redirect()->route('dashboard')->withSuccess('Berhasil melakukan pembelian');
+                } else {
+                    return back()->withError('Gagal melakukan pembelian');
+                }
             } else {
-                return back()->withError('Gagal melakukan pembelian');
+                return back()->withError('Gagal melakukan login');
             }
-        } else {
-            return back()->withError('Gagal melakukan login');
         }
     }
 
-    public function createTransaction(Request $request)
+
+    public function createTransaction($username, $product_code, $purchase_date, $quantity, $total_price)
     {
         $transaction = Transaction::create([
-            'username' => $request->username,
-            'product_code' => $request->product_code,
-            'purchase_date' => $request->purchase_date,
-            'quantity' => $request->quantity
+            'username' => $username,
+            'product_code' => $product_code,
+            'purchase_date' => $purchase_date,
+            'quantity' => $quantity,
+            'total_price' => $total_price
         ]);
     }
 }

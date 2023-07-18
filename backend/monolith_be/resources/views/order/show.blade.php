@@ -25,6 +25,7 @@
                             <form action="{{ route('order.purchase', ['id' => $barang['id']]) }}" method="POST">
                                 @csrf
                                 <input type="hidden" name="username" value="{{ auth()->user()->username }}">
+                                <input type="number" name="quantity" value="{{ $quantity }}" hidden>
                                 <button type="submit" class="btn btn-primary">Purchase</button>
                             </form>
                         </div>
