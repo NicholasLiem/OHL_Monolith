@@ -21,26 +21,30 @@ use App\Http\Controllers\Route\ErrorController;
 */
 
 Route::get('/', function () {
-    if (Auth::check()) {
-        return redirect('/dashboard');
-    } else {
-        return view('welcome');
-    }
+    return view('welcome');
 });
 
-Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-Route::post('/register', [RegisterController::class, 'register'])->name('register');
-Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [LoginController::class, 'login'])->name('login');
-Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
+Route::group(
+    [
+        'prefix' => 'auth',
+    ],
+    function () {
+        Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+        Route::post('/register', [RegisterController::class, 'register'])->name('register');
+        Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+        Route::post('/login', [LoginController::class, 'login'])->name('login');
+    }
+);
 
-Route::middleware('auth')->group(function () {
+Route::middleware('auth.jwt')->group(function () {
+    Route::post('/auth/logout', [LogoutController::class, 'logout'])->name('logout');
     Route::get('/dashboard', [DashboardController::class, 'showDashboard'])->name('dashboard');
     Route::get('/catalog/{id}', [CatalogController::class, 'show'])->name('catalog.show');
     Route::get('/catalog', [CatalogController::class, 'index'])->name('catalog.index');
     Route::get('/order/{id}', [TransactionController::class, 'show'])->name('order.show');
     Route::post('/order/{id}/purchase', [TransactionController::class, 'purchase'])->name('order.purchase');
     Route::get('/history', [TransactionController::class, 'history'])->name('order.history');
+    Route::get('/self', [LoginController::class, 'self'])->name('order.self');
 });
 
 Route::fallback([ErrorController::class, 'show404']);

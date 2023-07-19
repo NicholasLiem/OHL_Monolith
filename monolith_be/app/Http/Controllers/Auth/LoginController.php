@@ -2,9 +2,15 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Auth;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Facades\Session;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+use Illuminate\Support\Facades\Cookie;
+use App\Helpers\ResponseUtils;
 
 class LoginController extends Controller
 {
@@ -21,13 +27,38 @@ class LoginController extends Controller
             $credentials['username'] = $credentials['email'];
             unset($credentials['email']);
         }
+    
+        try {
+            if (!$token = JWTAuth::attempt($credentials)) {
+                ResponseUtils::flashError('Invalid credentials.');
+                return redirect()->back();
+            }
 
-        if (Auth::attempt($credentials))
-        {
-            $request->session()->put('username', Auth::user()->username);
-            return redirect()->intended('dashboard');
-        } else {
-            return back()->withErrors(['email' => 'Invalid credentials.']);
+        } catch (JWTException $e) {
+            ResponseUtils::flashError('Could not create token.');
+            return redirect()->back();
+        }
+
+        ResponseUtils::flashSuccess('Login successful.');
+        return redirect('/dashboard')->withCookie(cookie('jwt_token', $token, 60));
+    }
+
+    /**
+     * Get the authenticated User.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function self()
+    {
+        try {
+            $user = auth()->user();
+            if (!$user) {
+                return ResponseUtils::errorResponse('User not found.', 404);
+            }
+            return ResponseUtils::successResponse('User found.', $user);
+        } catch (Exception $e) {
+            return ResponseUtils::errorResponse($e->getMessage(), 500);
         }
     }
+
 }

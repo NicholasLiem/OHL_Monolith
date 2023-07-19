@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
+use App\Helpers\ResponseUtils;
 
 class CatalogController extends Controller
 {
@@ -24,7 +25,7 @@ class CatalogController extends Controller
             $items = collect($data['data']);
 
             if ($items->isEmpty()) {
-                return back()->withError('Tidak ada barang yang ditemukan.');
+                return ResponseUtils::flashError('Tidak ada barang yang ditemukan.');
             }
 
             $perPage = 9; // Number of items per page
@@ -40,9 +41,10 @@ class CatalogController extends Controller
                 ]
             );
 
+            ResponseUtils::flashSuccess('Berhasil mengambil data barang.');
             return view('catalog.index', compact('catalog'));
         } else {
-            return back()->withError('Gagal mengambil data katalog.');
+            return ResponseUtils::flashError('Gagal mengambil data barang.');
         }
     }
 
@@ -64,12 +66,13 @@ class CatalogController extends Controller
                 $barang['perusahaan_nama'] = $perusahaanNama;
 
             } else {
-                return back()->withError('Gagal mengambil data perusahaan.');
+                return ResponseUtils::flashError('Gagal mengambil data perusahaan.');
             }
-
+            
+            ResponseUtils::flashSuccess('Berhasil mengambil data barang dengan id: '. $barang['id']);
             return view('catalog.show', compact('barang'));
         } else {
-            return back()->withError('Gagal mengambil detail barang.');
+            return ResponseUtils::flashError('Gagal mengambil data barang.');
         }
     }
 

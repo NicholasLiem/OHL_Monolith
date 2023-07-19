@@ -7,8 +7,9 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Facades\Cookie;
+use App\Helpers\ResponseUtils;
 
 class RegisterController extends Controller
 {
@@ -35,8 +36,15 @@ class RegisterController extends Controller
             'password' => Hash::make($validatedData['password']),
         ]);
 
-        Auth::login($user);
-        Session::put('username', $user->username);
-        return redirect('/dashboard');
+        try {
+            $token = JWTAuth::fromUser($user);
+            JWTAuth::attempt($validatedData);
+
+        } catch (JWTException $e) {
+            return ResponseUtils::errorResponse('Could not create token.', 500);
+        }
+
+        ResponseUtils::flashSuccess('Registration successful.');
+        return redirect('/dashboard')->withCookie(cookie('jwt_token', $token, 60));
     }
 }

@@ -96,7 +96,6 @@
             text-align: center;
         }
 
-        /* Compact Pagination Style */
         .pagination {
             margin: 0;
             padding: 0;

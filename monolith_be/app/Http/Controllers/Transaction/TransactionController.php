@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Session;
+use App\Helpers\ResponseUtils;
 
 class TransactionController extends Controller
 {
@@ -18,9 +19,10 @@ class TransactionController extends Controller
         if ($response->successful()) {
             $barang = $response->json()['data'];
             $barang['total'] = $barang['harga'] * $quantity;
+            ResponseUtils::flashSuccess('Berhasil mengambil detail pembelian barang dengan id: '. $id . '.');
             return view('order.show', compact('barang', 'quantity'));
         } else {
-            return back()->withError('Gagal mengambil data barang');
+            return ResponseUtils::flashError('Gagal mengambil data barang.');
         }
     }
 
@@ -42,7 +44,7 @@ class TransactionController extends Controller
                 $kode = $barangData['kode'];
 
                 if ($quantity > $stok) {
-                    return back()->withError('Gagal melakukan pembelian. Stok tidak mencukupi.');
+                    return ResponseUtils::flashError('Stok barang tidak mencukupi');
                 }
 
                 $newStok = $stok - $quantity;
@@ -74,14 +76,16 @@ class TransactionController extends Controller
                             $quantity,
                             $harga * $quantity
                         );
-                        return redirect()->route('dashboard')->withSuccess('Berhasil melakukan pembelian');
+
+                        ResponseUtils::flashSuccess('Berhasil melakukan pembelian barang dengan kode: ' . $kode . ' sebanyak '. $quantity . ' buah.');
+                        return redirect()->route('dashboard');
                     }
                 }
             }
 
-            return back()->withError('Gagal melakukan pembelian');
-        } catch (\Exception $e) {
-            return back()->withError('Terjadi kesalahan saat melakukan pembelian: '.$e->getMessage());
+            ResponseUtils::flashError('Gagal melakukan pembelian');
+        } catch (Exception $e) {
+            ResponseUtils::flashError('Gagal melakukan pembelian');
         }
     }
 
@@ -100,7 +104,13 @@ class TransactionController extends Controller
 
     public function history()
     {
-        $transactions = Transaction::where('username', Session::get('username'))->paginate(10);
+        try {
+            $transactions = Transaction::where('username', auth()->user()['username'])->paginate(10);
+        } catch (Exception $e){
+            ResponseUtils::flashError('Gagal mengambil data transaksi, mungkin user tidak ada.');
+        }
+
+        ResponseUtils::flashSuccess('Berhasil mengambil data transaksi dari user: '.auth()->user()['username'].'.');
         return view('order.history', compact('transactions'));
     }
 }
