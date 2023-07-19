@@ -14,9 +14,10 @@ class CatalogController extends Controller
 {
     public function index(Request $request)
     {
+        $api_base_url = env('API_BASE_URL');
         $query = $request->input('q');
 
-        $response = Http::get('localhost:3000/barang', [
+        $response = Http::get($api_base_url . '/barang', [
             'q' => $query,
         ]);
 
@@ -51,13 +52,14 @@ class CatalogController extends Controller
 
     public function show($id)
     {
-        $response = Http::get('localhost:3000/barang/'.$id);
+        $api_base_url = env('API_BASE_URL');
+        $response = Http::get($api_base_url . '/barang/' .$id);
         
         if ($response->successful()) {
             $barang = $response->json()['data'];
 
             $perusahaanId = $barang['perusahaan_id'];
-            $perusahaanResponse = Http::get('localhost:3000/perusahaan/'.$perusahaanId);
+            $perusahaanResponse = Http::get($api_base_url .'/perusahaan/'.$perusahaanId);
 
             if ($perusahaanResponse->successful()) {
 

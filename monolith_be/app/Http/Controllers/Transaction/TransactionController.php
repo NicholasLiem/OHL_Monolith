@@ -13,8 +13,9 @@ class TransactionController extends Controller
 {
     public function show(Request $request, $id)
     {
+        $api_base_url = env('API_BASE_URL');
         $quantity = $request->input('quantity');
-        $response = Http::get('localhost:3000/barang/'.$id);
+        $response = Http::get($api_base_url . '/barang/'.$id);
 
         if ($response->successful()) {
             $barang = $response->json()['data'];
@@ -29,10 +30,11 @@ class TransactionController extends Controller
 
     public function purchase(Request $request, $id)
     {
+        $api_base_url = env('API_BASE_URL');
         $quantity = $request->input('quantity');
 
         try {
-            $barangResponse = Http::get('http://localhost:3000/barang/'.$id);
+            $barangResponse = Http::get($api_base_url . '/barang/'.$id);
 
             if ($barangResponse->successful()) {
                 $barangData = $barangResponse->json()['data'];
@@ -49,9 +51,9 @@ class TransactionController extends Controller
 
                 $newStok = $stok - $quantity;
 
-                $loginResponse = Http::post('http://localhost:3000/login', [
-                    'username' => 'admin',
-                    'password' => 'admin'
+                $loginResponse = Http::post($api_base_url . '/login', [
+                    'username' => env('API_USERNAME'),
+                    'password' => env('API_PASSWORD')
                 ]);
 
                 if ($loginResponse->successful()) {
@@ -59,7 +61,7 @@ class TransactionController extends Controller
 
                     $response = Http::withHeaders([
                         'Authorization' => 'Bearer ' . $token,
-                    ])->put('http://localhost:3000/barang/'.$id, [
+                    ])->put($api_base_url .'/barang/'.$id, [
                         'nama' => $nama,
                         'harga' => $harga,
                         'stok' => $newStok,
