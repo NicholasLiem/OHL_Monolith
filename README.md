@@ -68,7 +68,6 @@ Tidak ada penggunaan dependency injection dalam repository ini.
 | Features                                                     | Yes      | No |
 |--------------------------------------------------------------|----------|----|
 | B02 - Deployment                                             | &check;  |    |
-| B04 - Polling                                                | &check;  |    |
 | B08 - SOLID                                                  | &check;  |    |
 | B11 [01] - Fitur Tambahan (Search Functionality For Catalog) | &check;  |    |
 | B11 [02] - Fitur Tambahan (Status Bar)                       | &check;  |    |
