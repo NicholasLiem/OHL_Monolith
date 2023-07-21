@@ -7,13 +7,14 @@ Nicholas Liem - 13521135
 ```sh
 https://github.com/NicholasLiem/OHL_Monolith.git
 ```
-2. Change the current directory to `monolith_be` folder
+2. Change the current directory to `OHL_Monolith` folder
 ```sh
-cd monolith_be
+cd OHL_Monolith
 ```
-3. Run the server
+3. Build and run the container <br>
+Your app should be running at port :80 or just simply open localhost
 ```sh
-php artisan serve
+docker-compose up --build
 ```
 ## **Design Patterns**
 1. Model-View-Controller Pattern (Architectural) <br>
