@@ -11,46 +11,48 @@ https://github.com/NicholasLiem/OHL_Monolith.git
 ```sh
 cd monolith_be
 ```
-3. Build and run your docker containers
+3. Run the server
 ```sh
-docker-compose up --build
+php artisan serve
 ```
 ## **Design Patterns**
-1. Model-Controller Pattern (Architectural) <br>
-Secara struktur, backend service ini memiliki tiga buah model, yakni barang, perusahaan, dan user. Masing-masing dari model ini memiliki controller-nya masing-masing. Perlu diperhatikan bahwa karena ini adalah backend service jadi tidak ada view. Hal ini mempermudah pengaturan model-model dalam satu handler/controllernya masing-masing sehingga kode jadi lebih reusable.
-2. Repository Pattern <br>
-Model yang dibentuk diatur dan disimpan oleh ORM untuk diolah lebih mudah. Dalam hal ini, TypeORM menyediakan data source dan dari data source ini terdapat beberapa repository yang dibuat dari model yang ada. Kegunaan dari pattern ini adalah untuk menjaga abstraksi data dan menyentralisir data.
-3. Chain of Responsibility Pattern (Behavioral Design) <br>
-Pattern ini secara spesifik digunakan untuk melakukan penjagaan route api dengan memanggil fungsi checkToken yang akan memeriksa token dari header Authorization apakah valid atau tidak dan melanjutkan aksi selanjutnya kepada api yang ingin diakses. Jadi, alasan penggunaan pattern ini adalah untuk menjaga routing api melalui aksi linear tersebut.
-4. Singleton Pattern <br>
-Pada saat aplikasi dijalankan, pada route, masing-masing kelas controller dipanggil dan diinjeksi dengan data source yang telah diload. Masing-masing controller ini hanya dipanggil satu kali.
+1. Model-View-Controller Pattern (Architectural) <br>
+Framework Laravel menyediakan bentuk arsitektur yang mendukung MVC, controller yang dibuat mengikuti kebutuhan dari model. Misalnya ada controller untuk Login, Register, Logout, Catalog, dsb. Karena setiap "fitur" memiliki controllernya sendiri-sendiri, kode jadi lebih readable dan maintainable.
+
+2. Stategy Pattern <br>
+Penggunaan util function untuk repons message dalam bentuk format yang generik dan custom. Misalnya, dalam kelas ResponseUtils ada fungsi yang mengembalikan response dalam bentuk status bar dan juga ada yang dalam bentuk json. Selain itu juga dibedakan lagi, pesan sukses dan error yang memiliki format berbeda dan sebagainya.
+
+3. Template Method Pattern <br>
+Framework Laravel menyediakan blade sebagai salah satu provider kebutuhan frontendnya. Pada struktur kode blade, dapat disisipkan bagian-bagian sections misalnya untuk content maupun scripts yang bisa diisi oleh kode blade dari file lain. Kegunaannya adalah untuk mempertahankan struktur utama kode frontend pada subkelas yang memiliki isi-isi spesifik (catalog, dll).
 
 ## **Endpoints**
 | Endpoint             | Method   | Description                                        |
 |----------------------|----------|----------------------------------------------------|
-| /login               | POST     | Login verification                                 |
-| /self                | GET      | Get session status                                 |
-| /barang              | GET      | Get a list of barang registered based on query     |
-| /barang/:id          | GET      | Get the detail of barang of the given id           |
-| /barang              | POST     | Create a new barang                                |
-| /barang/:id          | PUT      | Update the detail of a barang of the given id      |
-| /barang/:id          | DELETE   | Delete barang of the given id                      |
-| /perusahaan          | GET      | Get a list of perusahaan registered based on query |
-| /perusahaan/:id      | GET      | Get the detail of perusahaan of the given id       |
-| /perusahaan          | POST     | Create a perusahaan                                |
-| /perusahaan/:id      | PUT      | Update the detail of perusahaan of the given id    |
-| /perusahaan/:id      | DELETE   | Delete perusahaan of the given id                  |
-
+| /auth/login          | GET      | Show login page                                    |
+| /auth/login          | POST     | Login verification                                 |
+| /auth/register       | GET      | Show register page                                 |
+| /auth/register       | POST     | Register verification                              |
+| /auth/logout         | POST     | Logout (Clearing Tokens)                           |
+| /dashboard           | GET      | Show dashboard page                                |
+| /catalog/{id}        | GET      | Show detailed information of barang with given id  |
+| /catalog             | GET      | Show all registered barang                         |
+| /order/{id}          | GET      | Show order detail                                  |
+| /order/{id}/purchase | POST     | Order process of barang with given id              |
+| /history             | GET      | Show list of transactions a user has made          |
+| /self                | GET      | Show login status                                  |
 
 ## **Tech Stack**
-Laravel, MySQL, Blade
+Laravel, MySQL
 
 ## **SOLID**
 1. Single Responsibility Principle <br>
-Setiap kelas/model yang dibuat memiliki satu buah controller yang hanya mengatur. Tidak ada controller yang mengatur barang atau perusahaan secara bersamaan, ex: tidak ada controller yang dapat membuat perusahaan sekaligus membuat barang juga. Selain itu, ada pembagian modul, misalnya seperti controller, middleware, dan sebagainya mereka terpisah dan tidak dalam satu tempat.
+Setiap kebutuhan yang berhubungan dengan use-case dibuatlah controller yang bersesuaian.
+Dalam repo ini, terdapat Auth group controller yang terdiri dari Login, Logout, dan Register.
+Untuk kebutuhan katalog, terdapat CatalogController. Untuk kebutuhan histori transaksi, terdapat TransactionController, dsb.
+Masing-masing controller hanya mengatur kebutuhannya masing-masing dan tidak terdiri di luar kebutuhan use-casenya.
 
 2. Open Closed Principle <br>
-OCP digunakan pada bagian reponse util dimana untuk setiap response dibagi apakah error atau success dan ada beberapa tipe struktur data khusus seperti barang yang responsenya unik dari response biasa sehingga ditambahkan beberapa fungsi untuk memfasilitasi kebutuhan tersebut sehingga tidak perlu mengubah reponse/data sumber, tetapi menyesuaikan dan menambahkan.
+Open Closed Principle yang digunakan pada repo ini adalah dalam penggunaan fungsi util, yakni ResponseUtils yang menyesuaikan hasil keluaran dari suatu route / pemanggilan route. Tidak perlu mengubah data yang ingin dikirimkan tetapi menyesuaikannya dalam bentuk penambahan fungsi yang sesuai untuk kebutuhannya. Misalnya response error punya fungsinya sendiri yang berbeda dari reponse sukses.
 
 3. Liskov Substitution Principle <br>
 Tidak ada inheritence yang digunakan dalam repository ini.
@@ -59,10 +61,18 @@ Tidak ada inheritence yang digunakan dalam repository ini.
 Setiap controller mengimplementasi method-method yang diperlukan untuk fungsionalitasnya. Tidak ada controller yang dipaksa untuk mengimplementasi method-method yang tidak diperlukan.
 
 5. Dependency Injection <br>
-Injeksi data source ke dalam controllernya masing-masing yang mengatur sebuah atau beberapa repository.
+Tidak ada penggunaan dependency injection dalam repository ini.
 
 ## **Bonus Report**
-| Features                                               | Yes      | No |
-|--------------------------------------------------------|----------|----|
-| B03 - Single Service Implementation                    | &check;  |    |
-| B08 - SOLID                                            | &check;  |    |
+| Features                                                     | Yes      | No |
+|--------------------------------------------------------------|----------|----|
+| B02 - Deployment                                             | &check;  |    |
+| B04 - Polling                                                | &check;  |    |
+| B08 - SOLID                                                  | &check;  |    |
+| B11 [01] - Fitur Tambahan (Search Functionality For Catalog) | &check;  |    |
+| B11 [02] - Fitur Tambahan (Status Bar)                       | &check;  |    |
+
+## **Extras**
+- This is a link to the single service repository [click here!](https://github.com/NicholasLiem/OHL_SingleService)
+- Amazon EC2 service is used for backend and frontend services and Amazon RDS for the MySQL server, deployment IPv4 Address (Backend and Frontend):
+- Access to the database is currently managed by Amazon RDS hence you might not be able to connect it (connection is secured via proxy and other security methods).

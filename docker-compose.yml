@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: monolith_laravel
+    container_name: monolith_app
+    restart: unless-stopped
+    tty: true
+    volumes:
+      - ./:/var/www/html/
+      - ./php/laravel.ini:/usr/local/etc/php/conf.d/laravel.ini
+    working_dir: /var/www/html/
+    networks:
+      - app-network
+  
+  webserver:
+    image: nginx:alpine
+    container_name: monolith_webserver
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./:/var/www/html/
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - app-network
+  
+  db:
+    image: mysql:latest
+    container_name: monolith_db
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql/
+      - ./mysql/my.cnf:/etc/mysql/my.cnf
+    environment:
+      MYSQL_DATABASE: monolith_db
+      MYSQL_ROOT_PASSWORD: IDK
+      MYSQL_USER: Monolith
+      MYSQL_PASSWORD: IDK
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local
