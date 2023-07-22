@@ -16,6 +16,18 @@ Your app should be running at port :80 or just simply open localhost
 ```sh
 docker-compose up --build
 ```
+4. Access the bash for the app
+```
+docker exec -it monolith_app bash
+```
+5. Run migrations for the app
+```
+php artisan migrate
+```
+6. (Optional) Make the app run flawlessly
+```
+php artisan config:cache
+```
 ## **Design Patterns**
 1. Model-View-Controller Pattern (Architectural) <br>
 Framework Laravel menyediakan bentuk arsitektur yang mendukung MVC, controller yang dibuat mengikuti kebutuhan dari model. Misalnya ada controller untuk Login, Register, Logout, Catalog, dsb. Karena setiap "fitur" memiliki controllernya sendiri-sendiri, kode jadi lebih readable dan maintainable.
