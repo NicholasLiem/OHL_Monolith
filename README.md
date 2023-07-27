@@ -24,9 +24,9 @@ docker exec -it monolith_app bash
 ```
 php artisan migrate
 ```
-6. (Optional) Make the app run flawlessly
+6. Change the API_BASE_URL to the desired SingleService address
 ```
-php artisan config:cache
+(default) API_BASE_URL=http://localhost:3000
 ```
 ## **Design Patterns**
 1. Model-View-Controller Pattern (Architectural) <br>
