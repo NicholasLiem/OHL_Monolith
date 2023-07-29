@@ -1,13 +1,13 @@
 <!-- Status Bar -->
-<div class="status-bar fixed-bottom d-flex justify-content-center">
+<div class="status-bar fixed-top d-flex mx-4">
     @if(session('success'))
-        <div class="alert alert-success text-center my-2 w-50">
+        <div class="alert alert-success px-4 my-2 w-auto">
             <strong>[Success] </strong>&nbsp;{{ session('success') }}
         </div>
     @endif
 
     @if(session('error'))
-        <div class="alert alert-danger text-center my-2 w-50">
+        <div class="alert alert-danger px-4 my-2 w-auto">
              <strong>[Error] </strong>&nbsp;{{ session('error') }}
         </div>
     @endif
@@ -16,24 +16,20 @@
 <style>
     .status-bar {
         position: fixed;
-        bottom: 0;
+        top: 0;
         left: 0;
         width: 100%;
     }
 
     .alert {
         display: flex;
-        align-items: center;
-        justify-content: center;
+        padding: 3px;
+        font-size: 12px;
     }
 
     .alert strong {
         font-weight: bold;
-        margin-left: 5px;
-    }
-
-    .icon {
-        font-size: 24px;
+        margin-left: 3px;
     }
 
     .success {
