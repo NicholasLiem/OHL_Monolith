@@ -97,5 +97,5 @@ Tidak ada penggunaan dependency injection dalam repository ini.
 
 ## **Extras**
 - This is a link to the single service repository [click here!](https://github.com/NicholasLiem/OHL_SingleService)
-- Amazon EC2 service is used for backend and frontend services and Supabase for the MySQL server, deployment IPv4 Address (Backend and Frontend): http://18.141.140.206/
+- Amazon EC2 service is used for backend and frontend services and Supabase for the MySQL server, deployment IPv4 Address (Backend and Frontend): http://54.169.210.163/
 - Access to the database is currently managed by Supabase hence you might not be able to connect it (connection is secured via proxy and other security methods).
