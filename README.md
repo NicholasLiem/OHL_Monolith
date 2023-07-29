@@ -20,14 +20,25 @@ docker-compose up --build
 ```
 docker exec -it monolith_app bash
 ```
-5. Run migrations for the app
+5. Make new .env file based on the .env.example (you can just remove .example from the file's name)
+
+6. Run migrations for the app
 ```
 php artisan migrate
 ```
-6. Change the API_BASE_URL to the desired SingleService address
+
+7. Change the API_BASE_URL to the desired SingleService address
+(Important, if you are running both service from docker) please make sure the networking between the single service network and monolith service network are connected. It should be like this (docker network ls). <br>
+![Docker Network](/markdown/images/DockerNetworkLs.jpg)
 ```
-(default) API_BASE_URL=http://localhost:3000
+(default) API_BASE_URL=http://single_service_app:3000
 ```
+8. Singleservice_app-network contents should be like this
+![Link Name](/markdown/images/single-service-network.jpg)
+
+9. Monolith_app-network contents should be like this
+![Link Name](/markdown/images/monolith-service-network.jpg)
+
 ## **Design Patterns**
 1. Model-View-Controller Pattern (Architectural) <br>
 Framework Laravel menyediakan bentuk arsitektur yang mendukung MVC, controller yang dibuat mengikuti kebutuhan dari model. Misalnya ada controller untuk Login, Register, Logout, Catalog, dsb. Karena setiap "fitur" memiliki controllernya sendiri-sendiri, kode jadi lebih readable dan maintainable.
@@ -86,5 +97,5 @@ Tidak ada penggunaan dependency injection dalam repository ini.
 
 ## **Extras**
 - This is a link to the single service repository [click here!](https://github.com/NicholasLiem/OHL_SingleService)
-- Amazon EC2 service is used for backend and frontend services and Amazon RDS for the MySQL server, deployment IPv4 Address (Backend and Frontend): http://18.141.140.206/
-- Access to the database is currently managed by Amazon RDS hence you might not be able to connect it (connection is secured via proxy and other security methods).
+- Amazon EC2 service is used for backend and frontend services and Supabase for the MySQL server, deployment IPv4 Address (Backend and Frontend): http://18.141.140.206/
+- Access to the database is currently managed by Supabase hence you might not be able to connect it (connection is secured via proxy and other security methods).
