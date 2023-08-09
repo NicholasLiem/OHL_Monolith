@@ -84,8 +84,8 @@ Tidak ada inheritence yang digunakan dalam repository ini.
 4. Interface Segregation <br>
 Setiap controller mengimplementasi method-method yang diperlukan untuk fungsionalitasnya. Tidak ada controller yang dipaksa untuk mengimplementasi method-method yang tidak diperlukan.
 
-5. Dependency Injection <br>
-Tidak ada penggunaan dependency injection dalam repository ini.
+5. Dependency Inversion <br>
+Tidak ada penggunaan dependency inversion dalam repository ini.
 
 ## **Bonus Report**
 | Features                                                     | Yes      | No |
@@ -97,5 +97,5 @@ Tidak ada penggunaan dependency injection dalam repository ini.
 
 ## **Extras**
 - This is a link to the single service repository [click here!](https://github.com/NicholasLiem/OHL_SingleService)
-- Amazon EC2 service is used for backend and frontend services and Supabase for the MySQL server, deployment IPv4 Address (Backend and Frontend): http://54.169.210.163/ (use http instead of https)
+- Amazon EC2 service is used for backend and frontend services and Supabase for the MySQL server, deployment IPv4 Address (Backend and Frontend): N/A (use http instead of https)
 - Access to the database is currently managed by Supabase hence you might not be able to connect it (connection is secured via proxy and other security methods).
